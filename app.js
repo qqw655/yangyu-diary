@@ -205,13 +205,35 @@ const DIET={
     ],
   },
 };
-/* 热量按“全天久坐、不含训练”计算（177cm/70kg/22岁：BMR≈1700，久坐TDEE≈2040） */
-const DIET_NOTE='热量按久坐消耗计算（不包含训练）。训练日本身已含练前加餐的能量；当天若额外运动（散步/跑步/冲刺），每 30 分钟中高强度活动可自行补约 100-150kcal 碳水。';
-const DIET_MACRO={
-  1:{A:{kcal:1900,p:150,f:50,c:210},B:{kcal:1880,p:148,f:50,c:207},C:{kcal:1860,p:146,f:50,c:202},REST:{kcal:1650,p:135,f:48,c:150}},
-  2:{A:{kcal:2500,p:145,f:60,c:345},B:{kcal:2480,p:142,f:60,c:340},C:{kcal:2460,p:145,f:58,c:338},REST:{kcal:2250,p:135,f:55,c:300}},
-  3:{A:{kcal:1850,p:150,f:50,c:200},B:{kcal:1830,p:148,f:50,c:196},C:{kcal:1810,p:145,f:48,c:192},REST:{kcal:1650,p:135,f:48,c:150}},
-};
+/* 热量按“全天久坐、不含训练”计算，随最近记录体重自动换算
+   Mifflin-St Jeor：BMR = 10×体重 + 6.25×身高(177) - 5×年龄(22) + 5；久坐 TDEE = BMR × 1.2
+   训练日的热量已含训练支出与练前加餐；休息日缺口更大。70kg 时数值与原校准一致。 */
+const DIET_NOTE='热量按最近记录体重 + 久坐消耗自动换算（不含训练）。训练日本身已含练前加餐的能量；当天若额外运动（散步/跑步/冲刺），每 30 分钟中高强度活动可自行补约 100-150kcal 碳水。';
+function currentWeight(){
+  const rec=body.slice().sort((a,b)=>a.date<b.date?-1:1).filter(b=>b.weight).pop();
+  const w=rec?Number(rec.weight):70;
+  return Math.min(150,Math.max(50,w));
+}
+/* 阶段 × 训练/休息日 → 每日热量与三大营养素（碳水=热量扣掉蛋白/脂肪后补齐） */
+function macroFor(phase, tag){
+  const kg=currentWeight();
+  const tdee=1.2*(10*kg+6.25*177-5*22+5);
+  const off=tag==='A'?0:tag==='B'?-20:-40; // 训练日 A/B/C 轮换，仅微调热量
+  const isRest=tag==='REST';
+  let kcal,p,f;
+  if(phase===2){ // 增肌期：+250 左右
+    kcal=isRest?tdee+210:tdee+460+off;
+    p=Math.round((isRest?1.93:2.07)*kg);
+    f=Math.round((isRest?0.79:0.86)*kg);
+  }else{ // 减脂/塑形：缺口 300-400
+    kcal=isRest?tdee-390:(phase===1?tdee-140:tdee-190)+off;
+    p=Math.round((isRest?1.93:2.14)*kg);
+    f=Math.round((isRest?0.69:0.71)*kg);
+  }
+  kcal=Math.round(kcal/10)*10;
+  const c=Math.max(0,Math.floor((kcal-4*p-9*f)/4/5)*5);
+  return {kcal,p,f,c,kg};
+}
 const DIET_LABEL={
   1:{A:'减脂期·训练日A',B:'减脂期·训练日B',C:'减脂期·训练日C',REST:'减脂期·休息日'},
   2:{A:'增肌期·训练日A',B:'增肌期·训练日B',C:'增肌期·训练日C',REST:'增肌期·休息日'},
@@ -386,7 +408,7 @@ function renderToday(){
   }
 
   // 饮食（按阶段）
-  const tag=dietTag(wk,isTrain),macro=DIET_MACRO[p][tag];
+  const tag=dietTag(wk,isTrain),macro=macroFor(p,tag);
   document.getElementById('dietTag').textContent=DIET_LABEL[p][tag];
   document.getElementById('todayDiet').innerHTML=macroBlockHTML(macro);
 
@@ -411,9 +433,9 @@ function renderPlan(){
   document.getElementById('phaseTable').innerHTML='<tr><th>阶段</th><th>周次</th><th>主题</th><th>目标</th><th>力量/体型里程碑</th></tr>'+
     PHASE_TARGETS.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('');
   const alloc=[
-    ['减脂·技术期','W1-16','4练/周','主项 4×4-6（减载 3×5）','中容量：每肌群约 8-12 组/周','练后拉伸 + 休息日轻跑 1-2 次','1900 / 1650 大卡 · 蛋白 150g'],
-    ['增肌·力量期','W17-36','4练/周','主项 5×5 → 4×3（减载 3×5）','高容量：每肌群约 10-14 组/周','跳跃/冲刺保持，每周 1 次','2500 / 2250 大卡 · 蛋白 145g'],
-    ['塑形·冲刺期','W37-46','4练/周','主项 3×3-4，强度优先','低容量：每肌群约 6-10 组/周','力量保底 + 体能维持','1850 / 1650 大卡 · 蛋白 150g'],
+    ['减脂·技术期','W1-16','4练/周','主项 4×4-6（减载 3×5）','中容量：每肌群约 8-12 组/周','练后拉伸 + 休息日轻跑 1-2 次','按体重自动换算 · 蛋白 ~2.1g/kg'],
+    ['增肌·力量期','W17-36','4练/周','主项 5×5 → 4×3（减载 3×5）','高容量：每肌群约 10-14 组/周','跳跃/冲刺保持，每周 1 次','按体重自动换算 · 蛋白 ~2.1g/kg'],
+    ['塑形·冲刺期','W37-46','4练/周','主项 3×3-4，强度优先','低容量：每肌群约 6-10 组/周','力量保底 + 体能维持','按体重自动换算 · 蛋白 ~2.1g/kg'],
   ];
   const allocEl=document.getElementById('phaseAlloc');
   if(allocEl)allocEl.innerHTML='<tr><th>阶段</th><th>周次</th><th>频率</th><th>主项组数×次数</th><th>容量</th><th>体能</th><th>饮食</th></tr>'+
@@ -440,7 +462,7 @@ function macroBlockHTML(m){
     '<div class="macro-row"><span>蛋白质</span><b>'+m.p+' g</b></div>'+
     '<div class="macro-row"><span>脂肪</span><b>'+m.f+' g</b></div>'+
     '</div>'+
-    '<div class="hint" style="margin-top:8px">不推荐固定餐单：每天盯住热量 + 碳水 / 蛋白质 / 脂肪四个数字，食物自由搭配，蛋白质优先保证。</div>';
+    '<div class="hint" style="margin-top:8px">按最近记录体重 '+(m.kg||70)+'kg 自动换算（未记录暂按 70kg）。不推荐固定餐单：每天盯住热量 + 碳水 / 蛋白质 / 脂肪四个数字，食物自由搭配，蛋白质优先保证。</div>';
 }
 function renderDiet(){
   const cur=weekOf(new Date()),p=phaseOf(cur);
@@ -449,7 +471,7 @@ function renderDiet(){
   document.getElementById('dietTemplates').innerHTML=[1,2,3].map(ph=>
     '<div class="card"><div class="card-title">'+PHASE_NAME[ph]+'</div>'+
     ['A','B','C','REST'].map(k=>{
-      const m=DIET_MACRO[ph][k];
+      const m=macroFor(ph,k);
       return '<div class="sub-card"><div class="sub-title">'+DIET_LABEL[ph][k]+'</div>'+macroBlockHTML(m)+'</div>';
     }).join('')+'</div>').join('');
 }
@@ -546,7 +568,7 @@ function importData(file){
 }
 function copyLog(){
   const now=new Date(),d=day0(now),wk=weekOf(d),dow=d.getDay(),key=fmt(d),L=logFor(key);
-  const isTrain=(dow===1||dow===2||dow===4||dow===5),p=phaseOf(wk),tag=dietTag(wk,isTrain),m=DIET_MACRO[p][tag];
+  const isTrain=(dow===1||dow===2||dow===4||dow===5),p=phaseOf(wk),tag=dietTag(wk,isTrain),m=macroFor(p,tag);
   let md='# '+key+' 训练日志\n\n## 今日状态\n- 周次：第 '+wk+' 周 · '+PHASE_NAME[p]+'（小周期第 '+wkInBlock(wk)+' 周）\n';
   const bw=body.find(b=>b.date===key);
   md+='- 体重/腰围/肩围：'+(bw?(bw.weight+'kg / '+(bw.waist||'-')+'cm / '+(bw.shoulder||'-')+'cm'):'未记录')+'\n\n## 训练\n';
