@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F4E79">
+<title>洋芋日记</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="head-title">
+    <h1>洋芋日记</h1>
+    <div id="countdownChip" class="chip">距广东省考 — 天</div>
+  </div>
+  <div id="todayLine" class="today-line"></div>
+</header>
+
+<main>
+  <!-- 今天 -->
+  <section id="tab-today" class="tab active">
+    <div id="todaySummary" class="summary-cards"></div>
+
+    <div class="card">
+      <div class="card-title" id="todayTrainTitle">今日训练模板</div>
+      <div id="todayWorkout"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">今日饮食 <span id="dietTag" class="tag"></span></div>
+      <div id="todayDiet"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">每日体重</div>
+      <div id="dailyWeightBlock"></div>
+    </div>
+  </section>
+
+  <!-- 计划 -->
+  <section id="tab-plan" class="tab">
+    <div class="card">
+      <div class="card-title">46 周三阶段总览（减脂→增肌→塑形）</div>
+      <p class="hint">主目标：肌肉大且好用 + 运动表现（力量/爆发/体能）。肩宽已融入训练日（侧平举 + 宽握引体），不单独占主项位置。</p>
+      <p class="hint">组数×次数：如 4×5 = 4 组、每组 5 次；4×3-5 = 每组 3-5 次按状态取；「减载周」= 降重约 5kg、次数下调。主项每组留 1-2 次余量（不做到力竭），速度掉 20% 停组。</p>
+      <p class="hint">当前基准：卧推 90kg×1 / 负重引体 +20kg×1 / 深蹲 40kg×14（1RM≈65-70）/ 硬拉未系统练——计划起始重量已按此设定，每周按小周期 +2.5kg 加重。</p>
+      <p class="hint">主项与辅项分工（顶刊共识）：主项在前、线性渐进+每4周减载（RIR 1-2）；辅项殿后，用 RIR 2-3 自动调节——选能做满次数且留 2-3 次余力的重量，参考阶段档位（侧平举 10→12.5→15kg、保加利亚 10→15→20kg），轻松完成最高次数再升档；辅项负责增肌容量/补弱/健康，不机械跟随主项。</p>
+      <table class="mini-table" id="phaseTable"></table>
+    </div>
+    <div class="card">
+      <div class="card-title">阶段 × 训练分配（减脂/增肌/塑形怎么练）</div>
+      <table class="mini-table" id="phaseAlloc"></table>
+    </div>
+    <div class="card">
+      <div class="card-title">周次选择</div>
+      <div id="weekPicker" class="week-picker"></div>
+    </div>
+    <div id="weekDetail"></div>
+  </section>
+
+  <!-- 文献 -->
+  <section id="tab-evidence" class="tab">
+    <div class="card">
+      <div class="card-title">计划依据 · 顶刊与专著</div>
+      <p class="hint">46 周计划由以下文献综合设计：每条先给结论，再说明在本计划里怎么落地。执行时按身体反应微调，文献是依据不是教条。</p>
+    </div>
+    <div id="evidenceList"></div>
+  </section>
+
+  <!-- 饮食 -->
+  <section id="tab-diet" class="tab">
+    <div class="card">
+      <div class="card-title">本周轮换</div>
+      <div id="dietRotation" class="diet-rotation"></div>
+    </div>
+    <div id="dietTemplates"></div>
+  </section>
+
+  <!-- 身体 -->
+  <section id="tab-body" class="tab">
+    <div class="card">
+      <div class="card-title">记录体重 / 腰围 / 肩围</div>
+      <div class="form-row">
+        <label>日期 <input type="date" id="bodyDate"></label>
+        <label>体重(kg) <input type="number" id="bodyWeight" step="0.1" placeholder="70.0"></label>
+        <label>腰围(cm) <input type="number" id="bodyWaist" step="0.5" placeholder="76.5"></label>
+        <label>肩围(cm) <input type="number" id="bodyShoulder" step="0.5" placeholder="110"></label>
+        <button id="bodySave" class="btn primary">保存</button>
+      </div>
+      <div id="bodyList" class="chips-line"></div>
+      <canvas id="bodyChart" width="440" height="180"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">主项力量曲线</div>
+      <div class="form-row">
+        <select id="liftSelect">
+          <option value="squat">深蹲</option>
+          <option value="bench">卧推</option>
+          <option value="dl">硬拉</option>
+          <option value="pullup">负重引体</option>
+          <option value="highpull">高拉</option>
+          <option value="clean">高翻</option>
+        </select>
+        <span class="hint">在"今日训练"里勾选主项即自动记录重量</span>
+      </div>
+      <canvas id="liftChart" width="440" height="180"></canvas>
+    </div>
+  </section>
+
+  <!-- 设置 -->
+  <section id="tab-settings" class="tab">
+    <div class="card">
+      <div class="card-title">考试日期</div>
+      <div class="form-row">
+        <label>广东省考日期 <input type="date" id="examDateInput"></label>
+        <button id="examDateSave" class="btn primary">保存</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">数据</div>
+      <div class="btn-row">
+        <button id="exportBtn" class="btn">导出全部数据(JSON)</button>
+        <button id="copyLogBtn" class="btn">复制今日训练日志</button>
+      </div>
+      <div class="btn-row">
+        <label class="btn file-btn">导入数据<input type="file" id="importFile" accept=".json" hidden></label>
+        <button id="resetBtn" class="btn danger">清空全部数据</button>
+      </div>
+      <p class="hint">导出文件可在另一台设备导入；"复制今日训练日志"可粘贴进 Obsidian 知识库训练日志。</p>
+    </div>
+    <div class="card">
+      <div class="card-title">使用说明</div>
+      <ul class="notes">
+        <li>46 周三阶段：W1-16 减脂·技术期 → W17-36 增肌·力量期 → W37-46 塑形·冲刺期；每 4 周一个小周期，第 4 周减载。第 1 周自 2026-08-10（周一）开始，按当天日期自动匹配。</li>
+        <li>爆发不局限高拉：W1-8 高拉打技术，W9 起进阶高翻（膝上→全幅度），高拉降为技术辅助；无减震片时接住后控制下放，不砸杠。</li>
+        <li>借力推按阶段自动加重（30→50→65→67.5kg，4×3 速度组）；它比实力推重 10-20% 就够，重点是爆发速度不是极限重量。</li>
+        <li>全面开发身体：力量（蹲/拉/推）+ 爆发（高翻/高拉/跳跃）+ 速度（冲刺/敏捷脚步）+ 单腿稳定 + 核心抗旋转 + 体能（休息日轻跑/快走）。</li>
+        <li>主项 RIR 1-2、速度掉 20% 停组；主项与爆发/高翻组间休息 3-5 分钟；辅助动作 60-90 秒。</li>
+        <li>肩宽已融入计划：上肢日各含 1 次侧平举（肩宽专项），引体用宽握练背阔宽度；这是肩部发展的组成部分，主目标仍是力量与肌肉量。</li>
+        <li>饮食按阶段计算，热量以"全天久坐、不含训练"为基准（BMR≈1700 / 久坐 TDEE≈2040）；训练日含练前加餐，额外运动自己加碳水。</li>
+        <li>蛋白质：减脂/塑形期 150g/天（约 2.1g/kg），增肌期 145g/天（约 2.0g/kg）；坚果 8-10g/天替代炒菜油。</li>
+        <li>数据保存在本设备浏览器中；定期用"导出全部数据"备份。</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<nav id="bottomNav">
+  <button data-tab="today" class="active">今天</button>
+  <button data-tab="plan">计划</button>
+  <button data-tab="evidence">文献</button>
+  <button data-tab="diet">饮食</button>
+  <button data-tab="body">身体</button>
+  <button data-tab="settings">设置</button>
+</nav>
+
+<script src="app.js"></script>
+</body>
+</html>
