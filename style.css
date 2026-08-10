@@ -19,7 +19,7 @@ main{padding:12px}
 .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 .card-title{font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .tag{background:var(--green3);color:#375623;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:600}
-.summary-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.summary-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
 .sum-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
 .sum-card .num{font-size:22px;font-weight:800;color:var(--blue)}
 .sum-card .lbl{font-size:12px;color:var(--muted);margin-top:2px}
@@ -95,6 +95,10 @@ input[type="text"]{width:100%}
 .diet-rotation span{font-size:12px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:3px 6px}
 .diet-rotation span.on{background:var(--green3);border-color:var(--green);font-weight:700}
 .sub-card{margin-top:10px;padding:10px 12px;background:#F1F5FA;border-radius:10px}
+.macro-block{display:flex;flex-direction:column;gap:6px}
+.macro-row{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px}
+.macro-row span{color:var(--muted);font-size:12px;font-weight:600}
+.macro-row b{font-size:16px;color:var(--blue)}
 .sub-title{font-weight:700;color:var(--blue);font-size:13px;margin-bottom:6px}
 .ev-item{border-left:3px solid var(--gold);background:#F8FAFD;padding:9px 11px;margin:9px 0;border-radius:8px}
 .ev-title{font-weight:700;font-size:13px;color:var(--blue)}
