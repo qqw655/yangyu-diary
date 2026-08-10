@@ -38,7 +38,7 @@ const liftConf={
   rdl:  [ [45,5,16],[67.5,5,20],[92.5,5,10] ],
   row:  [ [42.5,2.5,16],[62.5,5,20],[87.5,5,10] ],
   pp:   [ [32.5,2.5,16],[47.5,5,20],[72.5,5,10] ],
-  pushpress:[ [30,5,16],[50,2.5,20],[60,2.5,10] ],
+  pushpress:[ [35,2.5,16],[52.5,5,20],[80,5,10] ],
   hp:   [ [20,10,16],[65,7.5,20],[95,7.5,10] ],
   clean:[ [35,5,16],[55,5,20],[85,2.5,10] ],
 };
@@ -206,7 +206,7 @@ const DIET={
   },
 };
 /* 热量按“全天久坐、不含训练”计算（177cm/70kg/22岁：BMR≈1700，久坐TDEE≈2040） */
-const DIET_NOTE='热量按久坐消耗计算（不包含训练）。训练日本身已含练前加餐；当天若额外运动（散步/跑步/冲刺），自己加一份碳水（如 1 根香蕉或 1 片全麦面包）。';
+const DIET_NOTE='热量按久坐消耗计算（不包含训练）。训练日本身已含练前加餐的能量；当天若额外运动（散步/跑步/冲刺），每 30 分钟中高强度活动可自行补约 100-150kcal 碳水。';
 const DIET_MACRO={
   1:{A:{kcal:1900,p:150,f:50,c:210},B:{kcal:1880,p:148,f:50,c:207},C:{kcal:1860,p:146,f:50,c:202},REST:{kcal:1650,p:135,f:48,c:150}},
   2:{A:{kcal:2500,p:145,f:60,c:345},B:{kcal:2480,p:142,f:60,c:340},C:{kcal:2460,p:145,f:58,c:338},REST:{kcal:2250,p:135,f:55,c:300}},
@@ -268,7 +268,7 @@ function buildDay(wk,idx){
       ['哑铃侧平举（肩宽专项）','4×12-15',acc('10kg×2','12.5kg×2','15kg×2'),'辅项·肩宽增肌（中束）；RIR 2-3，严格不借力，4×15 轻松→升档',false,null],
       ['双杠臂屈伸','3×6-10',acc('自重 ~ +5kg','+10 ~ +15kg','+17.5 ~ +22.5kg'),'辅项·胸下束+三头增肌；RIR 2-3；6次×2次轻松→+2.5kg',false,null],
       ['俯身哑铃反向飞鸟','3×12-15',acc('10kg×2','12.5kg×2','15kg×2'),'辅项·肩后束健康（防圆肩）；RIR 2-3，严格不借力',false,null],
-      ['仰卧臂屈伸（碎颅者）','3×10-12',acc('10kg','12.5kg','15kg'),'辅项·三头长头（卧推补弱）；RIR 2-3，手肘朝前慢放',false,null],
+      ['仰卧臂屈伸（碎颅者）','3×10-12',acc('10kg','12.5kg','15-20kg（W杆+1.25kg片递增）'),'辅项·三头长头（卧推补弱）；RIR 2-3，手肘朝前慢放；3×12 全程 RIR≤2 → +2.5kg',false,null],
       ['平板支撑','3×45s','自重','核心稳定',false,null],
       ['静态拉伸（肩前/胸/三头）','5分钟','—','收尾',false,null],
     ],
@@ -387,19 +387,15 @@ function renderToday(){
 
   // 饮食（按阶段）
   const tag=dietTag(wk,isTrain),macro=DIET_MACRO[p][tag];
-  document.getElementById('dietTag').textContent=DIET_LABEL[p][tag]+' · '+macro.kcal+'kcal｜P'+macro.p+'g｜F'+macro.f+'g｜C'+macro.c+'g';
-  document.getElementById('todayDiet').innerHTML=DIET[p][tag].map(m=>{
-    const done=!!L.diet[m[0]];
-    return '<div class="meal-item'+(done?' done':'')+'"><input type="checkbox" data-meal="'+esc(m[0])+'" '+(done?'checked':'')+'><div><div class="meal-time">'+esc(m[0])+'</div><div class="meal-food">'+esc(m[1])+'</div><div class="meal-p">蛋白质 '+esc(m[2])+'</div></div></div>';
-  }).join('');
+  document.getElementById('dietTag').textContent=DIET_LABEL[p][tag];
+  document.getElementById('todayDiet').innerHTML=macroBlockHTML(macro);
 
   // 汇总
   const totalEx=isTrain?buildDay(wk,DAY_ORDER.indexOf(dow===1?0:dow===2?1:dow===4?3:4)).items.length:0;
   const doneEx=isTrain?Object.values(L.work).filter(Boolean).length:0;
-  const totalMeal=DIET[p][tag].length, doneMeal=Object.values(L.diet).filter(Boolean).length;
   document.getElementById('todaySummary').innerHTML=
     '<div class="sum-card"><div class="num">'+doneEx+'<small style="font-size:12px">/'+totalEx+'项</small></div><div class="lbl">训练</div></div>'+
-    '<div class="sum-card"><div class="num">'+doneMeal+'<small style="font-size:12px">/'+totalMeal+'餐</small></div><div class="lbl">饮食</div></div>';
+    '<div class="sum-card"><div class="num">'+macro.kcal+'<small style="font-size:12px">kcal</small></div><div class="lbl">今日热量目标</div></div>';
 
   // 每日体重/腰围/肩围
   const todayBody=body.find(b=>b.date===key);
@@ -437,6 +433,15 @@ function renderWeekDetail(){
 }
 
 /* ================= 渲染：饮食 ================= */
+function macroBlockHTML(m){
+  return '<div class="macro-block">'+
+    '<div class="macro-row"><span>热量</span><b>'+m.kcal+' kcal</b></div>'+
+    '<div class="macro-row"><span>碳水</span><b>'+m.c+' g</b></div>'+
+    '<div class="macro-row"><span>蛋白质</span><b>'+m.p+' g</b></div>'+
+    '<div class="macro-row"><span>脂肪</span><b>'+m.f+' g</b></div>'+
+    '</div>'+
+    '<div class="hint" style="margin-top:8px">不推荐固定餐单：每天盯住热量 + 碳水 / 蛋白质 / 脂肪四个数字，食物自由搭配，蛋白质优先保证。</div>';
+}
 function renderDiet(){
   const cur=weekOf(new Date()),p=phaseOf(cur);
   document.getElementById('dietRotation').innerHTML=Array.from({length:TOTAL_WEEKS},(_,i)=>i+1).map(w=>
@@ -445,8 +450,7 @@ function renderDiet(){
     '<div class="card"><div class="card-title">'+PHASE_NAME[ph]+'</div>'+
     ['A','B','C','REST'].map(k=>{
       const m=DIET_MACRO[ph][k];
-      return '<div class="sub-card"><div class="sub-title">'+DIET_LABEL[ph][k]+' · '+m.kcal+'kcal｜P'+m.p+'｜F'+m.f+'｜C'+m.c+'</div>'+
-        DIET[ph][k].map(x=>'<div class="meal-item"><div class="meal-time">'+esc(x[0])+'</div><div class="meal-food">'+esc(x[1])+'<div class="meal-p">蛋白质 '+esc(x[2])+'</div></div></div>').join('')+'</div>';
+      return '<div class="sub-card"><div class="sub-title">'+DIET_LABEL[ph][k]+'</div>'+macroBlockHTML(m)+'</div>';
     }).join('')+'</div>').join('');
 }
 
@@ -555,7 +559,6 @@ function copyLog(){
     });
   }else md+='- 休息日\n';
   md+='\n## 饮食（'+DIET_LABEL[p][tag]+' · '+m.kcal+'kcal｜P'+m.p+'｜F'+m.f+'｜C'+m.c+'）\n';
-  DIET[p][tag].forEach(x=>md+='- ['+(L.diet[x[0]]?'x':' ')+'] '+x[0]+'：'+x[1]+'\n');
   md+='\n## 小结\n- 今天状态：'+(isTrain?'完成训练并按要求饮食':'休息日恢复')+'\n';
   const ta=document.createElement('textarea');ta.value=md;document.body.appendChild(ta);ta.select();
   let ok=false;
@@ -591,9 +594,6 @@ function bindEvents(){
         if(lift&&w>0)L.lifts[lift]=w;
       }
       persist();render();
-    }
-    if(e.target.matches('input[data-meal]')){
-      const key=todayKey,L=logFor(key);L.diet[e.target.dataset.meal]=e.target.checked;persist();render();
     }
   });
   document.addEventListener('click',e=>{
