@@ -86,7 +86,7 @@ Object.keys(liftConf).forEach(k=>{
 });
 
 /* 主项次数：按阶段 + 4 周小周期位置（w4 减载） */
-function wkInBlock(wk){ return ((wk-phaseStart(phaseOf(wk))-1)%4)+1; }
+function wkInBlock(wk){ return ((wk-phaseStart(phaseOf(wk)))%4)+1; }
 function mainReps(wk){
   const p=phaseOf(wk), b=wkInBlock(wk);
   if(b===4) return '3×5（减载）';
