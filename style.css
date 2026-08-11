@@ -11,6 +11,9 @@ header{background:var(--blue);color:#fff;padding:16px 16px 12px;position:sticky;
 .head-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
 h1{font-size:20px}
 .chip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 10px;font-size:13px;white-space:nowrap}
+.chip.life-chip{white-space:normal;text-align:right;max-width:56vw;border-radius:14px;padding:6px 12px;line-height:1.45}
+.life-poem{font-size:13px;font-weight:700;letter-spacing:.5px}
+.life-meta{font-size:11px;opacity:.9;margin-top:2px}
 .chip.small{font-size:12px;background:var(--blue3);color:var(--blue);border:none}
 .today-line{font-size:13px;opacity:.9;margin-top:6px}
 main{padding:12px}
