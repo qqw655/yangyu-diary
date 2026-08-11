@@ -1,7 +1,7 @@
 'use strict';
 /* ================= 计划数据：46 周三阶段（减脂→增肌→塑形） ================= */
 const START = new Date(2026, 7, 10); // 2026-08-10 周一
-const EXAM_DEFAULT = '2026-12-05';
+const PERFECT_START = new Date(2026, 7, 11); // 完美人生第 1 天：2026-08-11
 const TOTAL_WEEKS = 46;
 const WD = ['周日','周一','周二','周三','周四','周五','周六'];
 const DAY_ORDER = [0, 1, 3, 4]; // 周一/周二/周四/周五
@@ -331,7 +331,7 @@ function buildWeek(wk){
 const LS={settings:'gkx_settings_v2',logs:'gkx_logs_v1',body:'gkx_body_v1'};
 const load=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){alert('保存失败：本地存储不可用');}};
-let settings=load(LS.settings,{exam:EXAM_DEFAULT});
+let settings=load(LS.settings,{});
 let logs=load(LS.logs,{});
 let body=load(LS.body,[]);
 const todayKey=fmt(new Date());
@@ -375,8 +375,8 @@ function renderToday(){
   if(tt)tt.textContent=isTrain?'今日训练模板':'好好休息';
   document.getElementById('todayLine').textContent=
     d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · '+WD[dow]+' · 第 '+wk+' 周 · '+PHASE_NAME[p]+'（小周期第 '+wkInBlock(wk)+' 周）';
-  const examDays=Math.max(0,Math.ceil((parseDate(settings.exam)-day0(now))/86400000));
-  document.getElementById('countdownChip').textContent='距广东省考 '+examDays+' 天';
+  const perfectDay=Math.max(1,Math.floor((day0(now)-day0(PERFECT_START))/86400000)+1);
+  document.getElementById('countdownChip').textContent='完美人生第 '+perfectDay+' 天';
 
   // 训练
   const wkEl=document.getElementById('todayWorkout');
@@ -558,7 +558,7 @@ function importData(file){
   fr.onload=()=>{
     try{
       const d=JSON.parse(fr.result);
-      if(d.settings)settings=Object.assign({exam:EXAM_DEFAULT},d.settings);
+      if(d.settings)settings=Object.assign({},d.settings);
       if(d.logs)logs=d.logs;
       if(d.body)body=d.body;
       save(LS.settings,settings);save(LS.logs,logs);save(LS.body,body);
@@ -669,16 +669,12 @@ function bindEvents(){
       if(idx>=0){rec.waist=body[idx].waist;rec.shoulder=body[idx].shoulder;body[idx]=rec;}else body.push(rec);
       save(LS.body,body);render();
     }
-    if(e.target.matches('#examDateSave')){
-      const v=document.getElementById('examDateInput').value;
-      if(v){settings.exam=v;save(LS.settings,settings);flash('考试日期已更新');render();}
-    }
     if(e.target.matches('#exportBtn'))exportData();
     if(e.target.matches('#copyLogBtn'))copyLog();
     if(e.target.matches('#resetBtn')){
       if(confirm('确定清空全部数据？此操作不可恢复（建议先导出备份）。')){
         localStorage.removeItem(LS.settings);localStorage.removeItem(LS.logs);localStorage.removeItem(LS.body);
-        settings={exam:EXAM_DEFAULT};logs={};body=[];
+        settings={};logs={};body=[];
         render();flash('数据已清空');
       }
     }
@@ -692,7 +688,6 @@ function bindEvents(){
 /* ================= 启动 ================= */
 function render(){
   renderToday();renderPlan();renderDiet();renderBody();renderEvidence();
-  document.getElementById('examDateInput').value=settings.exam;
 }
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('bodyDate').value=todayKey;
