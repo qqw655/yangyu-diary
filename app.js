@@ -1,7 +1,44 @@
 'use strict';
 /* ================= 计划数据：46 周三阶段（减脂→增肌→塑形） ================= */
 const START = new Date(2026, 7, 10); // 2026-08-10 周一
-const PERFECT_START = new Date(2026, 7, 11); // 完美人生第 1 天：2026-08-11
+const BIRTH = new Date(2004, 10, 3);      // 出生日期：2004-11-03
+const LIFE_SPAN_YEARS = 80;               // 人生进度按 80 岁估算
+const POEMS = [
+  { v: "会当凌绝顶，一览众山小", s: "杜甫《望岳》" },
+  { v: "欲与天公试比高", s: "毛泽东《沁园春·雪》" },
+  { v: "长风破浪会有时，直挂云帆济沧海", s: "李白《行路难》" },
+  { v: "天生我材必有用，千金散尽还复来", s: "李白《将进酒》" },
+  { v: "千磨万击还坚劲，任尔东西南北风", s: "郑燮《竹石》" },
+  { v: "宝剑锋从磨砺出，梅花香自苦寒来", s: "《警世贤文》" },
+  { v: "三更灯火五更鸡，正是男儿读书时", s: "颜真卿《劝学》" },
+  { v: "黑发不知勤学早，白首方悔读书迟", s: "颜真卿《劝学》" },
+  { v: "少壮不努力，老大徒伤悲", s: "《长歌行》" },
+  { v: "路漫漫其修远兮，吾将上下而求索", s: "屈原《离骚》" },
+  { v: "天行健，君子以自强不息", s: "《周易》" },
+  { v: "老骥伏枥，志在千里", s: "曹操《龟虽寿》" },
+  { v: "不积跬步，无以至千里", s: "《荀子·劝学》" },
+  { v: "锲而不舍，金石可镂", s: "《荀子·劝学》" },
+  { v: "业精于勤，荒于嬉", s: "韩愈《进学解》" },
+  { v: "书山有路勤为径，学海无涯苦作舟", s: "韩愈" },
+  { v: "纸上得来终觉浅，绝知此事要躬行", s: "陆游《冬夜读书示子聿》" },
+  { v: "咬定青山不放松，立根原在破岩中", s: "郑燮《竹石》" },
+  { v: "海到无边天作岸，山登绝顶我为峰", s: "林则徐" },
+  { v: "千淘万漉虽辛苦，吹尽狂沙始到金", s: "刘禹锡《浪淘沙》" },
+  { v: "不经一番寒彻骨，怎得梅花扑鼻香", s: "黄蘖禅师《上堂开示颂》" },
+  { v: "雄关漫道真如铁，而今迈步从头越", s: "毛泽东《忆秦娥·娄山关》" },
+  { v: "数风流人物，还看今朝", s: "毛泽东《沁园春·雪》" },
+  { v: "大鹏一日同风起，扶摇直上九万里", s: "李白《上李邕》" },
+  { v: "少年辛苦终身事，莫向光阴惰寸功", s: "杜荀鹤《题弟侄书堂》" },
+  { v: "及时当勉励，岁月不待人", s: "陶渊明《杂诗》" },
+  { v: "沉舟侧畔千帆过，病树前头万木春", s: "刘禹锡《酬乐天扬州初逢席上见赠》" },
+  { v: "莫等闲，白了少年头，空悲切", s: "岳飞《满江红》" },
+];
+function dailyPoem(d){
+  const s = fmt(d);
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return POEMS[h % POEMS.length];
+}
 const TOTAL_WEEKS = 46;
 const WD = ['周日','周一','周二','周三','周四','周五','周六'];
 const DAY_ORDER = [0, 1, 3, 4]; // 周一/周二/周四/周五
@@ -375,8 +412,14 @@ function renderToday(){
   if(tt)tt.textContent=isTrain?'今日训练模板':'好好休息';
   document.getElementById('todayLine').textContent=
     d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · '+WD[dow]+' · 第 '+wk+' 周 · '+PHASE_NAME[p]+'（小周期第 '+wkInBlock(wk)+' 周）';
-  const perfectDay=Math.max(1,Math.floor((day0(now)-day0(PERFECT_START))/86400000)+1);
-  document.getElementById('countdownChip').textContent='完美人生第 '+perfectDay+' 天';
+  const msLife=day0(now)-day0(BIRTH);
+  const lifeDays=Math.floor(msLife/86400000);
+  const lifeYears=msLife/86400000/365.2425;
+  const progress=Math.min(100,Math.max(0,(lifeYears/LIFE_SPAN_YEARS)*100)).toFixed(1);
+  const poem=dailyPoem(now);
+  document.getElementById('lifeChip').innerHTML=
+    '<div class="life-poem">'+esc(poem.v)+'</div>'+
+    '<div class="life-meta">'+esc(poem.s)+' · 人生进度 '+progress+'% · 出生 '+lifeDays+' 天</div>';
 
   // 训练
   const wkEl=document.getElementById('todayWorkout');
