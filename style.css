@@ -6,21 +6,21 @@
   --ink:#222;--muted:#666;--line:#D9D9D9;--bg:#F5F7FA;
 }
 html,body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:linear-gradient(180deg,#F5F7FA 0%,#EAF0F7 100%);background-attachment:fixed;color:var(--ink)}
+html,body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 body{max-width:520px;margin:0 auto;padding-bottom:72px}
-header{background:linear-gradient(135deg,#173C5F,var(--blue),#2E75B6);color:#fff;padding:16px 16px 12px;position:sticky;top:0;z-index:10;box-shadow:0 3px 12px rgba(31,78,121,.3)}
-.head-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
-h1{font-size:20px}
+header{background:linear-gradient(160deg,#173C5F 0%,var(--blue) 55%,#2E75B6 100%);color:#fff;padding:18px 16px 14px;position:sticky;top:0;z-index:10;box-shadow:0 3px 12px rgba(31,78,121,.3);text-align:center}
 .chip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 10px;font-size:13px;white-space:nowrap}
-.chip.life-chip{white-space:normal;text-align:right;max-width:56vw;border-radius:14px;padding:6px 12px;line-height:1.45}
-.life-poem{font-size:14px;font-weight:700;letter-spacing:.5px;font-family:"Kaiti SC","STKaiti","KaiTi",serif}
-.life-meta{font-size:11px;opacity:.9;margin-top:2px}
+.chip.life-chip{white-space:normal;text-align:center;max-width:92%;margin:0 auto;border-radius:16px;padding:10px 18px;line-height:1.5;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28)}
+.life-poem{font-size:17px;font-weight:700;letter-spacing:2px;font-family:"Kaiti SC","STKaiti","KaiTi",serif;text-shadow:0 1px 2px rgba(0,0,0,.18)}
+.life-meta{font-size:11px;opacity:.88;margin-top:5px;letter-spacing:.5px}
 .chip.small{font-size:12px;background:var(--blue3);color:var(--blue);border:none}
-.today-line{font-size:13px;opacity:.9;margin-top:6px}
+.today-line{font-size:12.5px;opacity:.88;margin-top:9px;letter-spacing:.5px}
 main{padding:12px}
 .tab{display:none}
 .tab.active{display:block}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 3px 10px rgba(31,78,121,.06)}
 .card-title{font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{letter-spacing:.6px}
 .tag{background:var(--green3);color:#375623;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:600}
 .summary-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
 .sum-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
@@ -33,6 +33,7 @@ main{padding:12px}
 .ex-item:last-child{border-bottom:none}
 .ex-item.done .ex-main{opacity:.5;text-decoration:line-through}
 .ex-name{font-weight:600;font-size:14px}
+.ex-name{letter-spacing:.3px}
 .ex-meta{font-size:12px;color:var(--muted);margin-top:2px}
 .ex-note{font-size:12px;color:#8a6d3b;margin-top:2px}
 .rest{color:#2e7d32;font-size:12px;font-weight:700}
