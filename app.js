@@ -131,11 +131,12 @@ function ppSets(wk){
   return wkInBlock(wk)===4?'2×3（减载）':'4×3';
 }
 function isCleanWeek(wk){ return wk>=9; }
+const jsLoad=(wk)=>wk<=24?'25kg':wk<=32?'30kg':wk<=39?'35kg':wk<=44?'40kg':'42.5kg';
 function jumpOf(wk){
   const p=phaseOf(wk), b=wkInBlock(wk);
   if(p===1) return ['跳箱 / 摆臂纵跳','4×3','24-30寸箱/自重'];
-  if(p===2) return b%2?['跳深（30-40cm箱）','4×3-5','自重']:['负重蹲跳（30%极限重量）','3×4','20kg'];
-  return b<=3?['负重蹲跳（30%极限重量）','3×4','20kg']:['单脚跳（踝弹性）','3×3/侧','自重'];
+  if(p===2) return b%2?['跳深（30-40cm箱）','4×3-5','自重']:['负重蹲跳（30%极限重量）','3×4',jsLoad(wk)];
+  return b<=3?['负重蹲跳（30%极限重量）','3×4',jsLoad(wk)]:['单脚跳（踝弹性）','3×3/侧','自重'];
 }
 function phaseGoalNote(wk){
   const p=phaseOf(wk), b=wkInBlock(wk);
