@@ -577,7 +577,34 @@ function renderEvidence(){
 }
 
 /* ================= 渲染：身体 ================= */
+const WT_END_WK=16, WT_END_KG=66;
+function bodyTargetHTML(){
+  const sorted=body.slice().sort((a,b)=>a.date<b.date?-1:1);
+  const recs=sorted.filter(b=>b.weight);
+  const start=recs.length?Number(recs[0].weight):70;
+  const wk=Math.max(1,Math.min(weekOf(new Date()),TOTAL_WEEKS));
+  const plan=start-(start-WT_END_KG)*Math.max(wk-1,0)/Math.max(WT_END_WK-1,1);
+  const last=recs.length?recs[recs.length-1]:null;
+  let diffHtml='<div class="hint">记录体重后自动对比</div>',forecastHtml='';
+  if(last){
+    const diff=Number(last.weight)-plan;
+    const color=diff>0.3?'#C00000':(diff<-0.3?'#2E7D32':'#666');
+    diffHtml='<div style="margin-top:6px;color:'+color+'">最近记录 '+last.weight+'kg（'+last.date+'） · '+(diff>0?'落后':'超前')+' '+Math.abs(diff).toFixed(1)+'kg'+(diff>0?'，本周需多减 '+Math.abs(diff).toFixed(1)+'kg 才能跟上计划':'，进度良好')+'</div>';
+  }
+  if(recs.length>=2){
+    const a=recs[recs.length-2],b=recs[recs.length-1];
+    const days=(Date.parse(b.date)-Date.parse(a.date))/86400000;
+    const wks=Math.max(days/7,0.5);
+    const rate=(Number(b.weight)-Number(a.weight))/wks;
+    const remain=Math.max(WT_END_WK-wk,0);
+    const f=Number(b.weight)+rate*remain;
+    forecastHtml='<div class="hint" style="margin-top:6px">按当前速度（每周 '+rate.toFixed(2)+'kg），W'+WT_END_WK+' 预计 '+Math.round(f*10)/10+'kg'+(f>WT_END_KG+0.5?'，偏慢，需收紧饮食':'，符合/快于计划')+'</div>';
+  }
+  return '<div style="font-size:20px;font-weight:700;color:#1F4E79">本周应有体重 '+Math.round(plan*10)/10+'kg <small style="font-size:12px;font-weight:400;color:#666">（第 '+wk+' 周 · 目标 W'+WT_END_WK+' → '+WT_END_KG+'kg，从周一起算）</small></div>'+diffHtml+forecastHtml;
+}
 function renderBody(){
+  const tEl=document.getElementById('bodyTarget');
+  if(tEl)tEl.innerHTML=bodyTargetHTML();
   const sorted=body.slice().sort((a,b)=>a.date<b.date?-1:1);
   document.getElementById('bodyList').innerHTML=sorted.slice(-6).reverse().map(b=>'<span>'+b.date+'  '+b.weight+'kg / '+b.waist+'cm'+(b.shoulder?' / '+b.shoulder+'cm':'')+'</span>').join('')||'<span class="hint">暂无记录</span>';
   const wpts=sorted.filter(b=>b.weight).map(b=>b.weight),wlab=sorted.filter(b=>b.weight).map(b=>b.date.slice(5));
