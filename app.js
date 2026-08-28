@@ -471,7 +471,8 @@ function renderToday(){
     }).join('');
     wkEl.innerHTML='<div class="rest-note" style="margin-bottom:8px">今日：'+esc(day.name)+'（'+WD[day.date.getDay()]+' '+day.date.getMonth()+1+'/'+day.date.getDate()+'）· 预计约 '+day.duration+' 分钟<br>'+esc(phaseGoalNote(wk))+'</div>'+items;
   }else{
-    wkEl.innerHTML='<div class="rest-note big">💤 好好休息<br>今天是休息日（周三/六/日）。恢复也是训练的一部分：散步或快走 20-30 分钟、拉伸、睡前 10 分钟泡沫轴。<br>状态好可选「补充日」：上胸/中束/后束/背阔，见计划页底部——每个部位 2-4 组、重量自定、留 2-3 次余力；累了直接跳过，恢复优先。<br>全能体能（每周 1-2 次，可选）：轻松跑/快走 20-30 分钟 + 4×30-40m 冲刺（热身充分）+ 侧向滑步/折返跑。<br>'+esc(phaseGoalNote(wk))+'</div>';
+    const sup=SUP_TODAY[dow]||'可选补充日';
+    wkEl.innerHTML='<div class="rest-note big">💤 好好休息<br>今天是休息日（周三/六/日）。恢复也是训练的一部分：散步或快走 20-30 分钟、拉伸、睡前 10 分钟泡沫轴。<br>状态好做「'+esc(sup)+'」：重量自定、留 2-3 次余力、不做到力竭；累了直接跳过（完整模板见计划页底部）。<br>全能体能（每周 1-2 次，可选）：轻松跑/快走 20-30 分钟 + 4×30-40m 冲刺（热身充分）+ 侧向滑步/折返跑。<br>'+esc(phaseGoalNote(wk))+'</div>';
   }
 
   // 饮食（按阶段）
@@ -498,34 +499,35 @@ function renderToday(){
 let selWeek=weekOf(new Date());
 /* 可选补充日：核心四练之外的三天，针对弱势部位（上胸/中束/后束/背阔），不练腿、不固定重量 */
 const SUPPLEMENTS=[
-  {name:'补充日A · 上胸+中束',dur:'约40分钟',total:'8-10组',items:[
-    ['上斜哑铃卧推（上胸）','4×10-12'],
-    ['上斜俯卧撑（脚垫高）/ 哑铃上斜飞鸟','3×12-15'],
-    ['哑铃侧平举（中束）','4×15-20'],
-    ['弹力带侧平举（中束·收尾）','2×20+'],
-  ]},
-  {name:'补充日B · 背阔+后束',dur:'约40分钟',total:'8-10组',items:[
+  {day:'周三',name:'补充日B · 背阔+后束',dur:'约40分钟',total:'8-10组',items:[
     ['单臂哑铃划船（背阔·可换杠铃/弹力带加重）','4×10-12/侧'],
     ['弹力带直臂下压（背阔孤立）','3×12-15'],
     ['俯身哑铃反向飞鸟（后束）','4×12-15'],
     ['弹力带面拉（后束+肩袖）','3×15-20'],
   ]},
-  {name:'补充日C · 弱区混合泵感',dur:'约35分钟',total:'7-9组',items:[
+  {day:'周六',name:'补充日C · 弱区混合泵感',dur:'约35分钟',total:'7-9组',items:[
     ['上斜哑铃卧推（上胸）','3×10-12'],
     ['哑铃侧平举（中束）','3×15-20'],
     ['弹力带面拉（后束）','3×15-20'],
     ['弹力带直臂下压（背阔）','2×12-15'],
+  ]},
+  {day:'周日',name:'补充日A · 上胸+中束',dur:'约40分钟',total:'8-10组',items:[
+    ['上斜哑铃卧推（上胸）','4×10-12'],
+    ['上斜俯卧撑（脚垫高）/ 哑铃上斜飞鸟','3×12-15'],
+    ['哑铃侧平举（中束）','4×15-20'],
+    ['弹力带侧平举（中束·收尾）','2×20+'],
   ]},
 ];
 function renderSupplement(){
   const el=document.getElementById('supplementList');
   if(!el)return;
   el.innerHTML=SUPPLEMENTS.map(s=>
-    '<div class="sub-card"><div class="sub-title">'+esc(s.name)+' · '+s.total+' · '+s.dur+'</div>'+
+    '<div class="sub-card"><div class="sub-title">'+esc(s.day)+' · '+esc(s.name)+' · '+s.total+' · '+s.dur+'</div>'+
     s.items.map(it=>'<div class="ex-item"><div class="ex-main"><div class="ex-name">'+esc(it[0])+'</div>'+
       '<div class="ex-meta">'+esc(it[1])+' · 重量自定 · 休60-90秒</div></div></div>').join('')+
     '</div>').join('');
 }
+const SUP_TODAY={3:'补充日B · 背阔+后束（单臂划船/直臂下压/反向飞鸟/面拉）',6:'补充日C · 弱区混合（上斜卧推/侧平举/面拉/直臂下压）',0:'补充日A · 上胸+中束（上斜卧推/飞鸟/侧平举）'};
 function renderPlan(){
   document.getElementById('phaseTable').innerHTML='<tr><th>阶段</th><th>周次</th><th>主题</th><th>目标</th><th>力量/体型里程碑</th></tr>'+
     PHASE_TARGETS.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('');
