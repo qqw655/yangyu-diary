@@ -327,17 +327,18 @@ const dayDuration=(wk,idx)=>wkInBlock(wk)===4?DAY_DURATION[idx].deload:DAY_DURAT
 function buildDay(wk,idx){
   const i=wk-1,p=phaseOf(wk),j=jumpOf(wk),mr=mainReps(wk);
   const acc=(p1,p2,p3)=>[p1,p2,p3][p-1];
+  const rir=acc('末组RIR 1（不追力竭）','末组RIR 0-1（接近力竭）','末组RIR 0-1');
   const bulgarianLoad=(wk)=>wk<=16?'哑铃 10-12.5kg×2':wk<=24?'哑铃 15kg×2':wk<=28?'杠铃 35kg':wk<=32?'杠铃 40kg':wk<=36?'杠铃 42.5kg':wk<=40?'杠铃 45kg':wk<=44?'杠铃 47.5kg':'杠铃 50kg';
   const cond=p===1?'；条件加重：上组留≤2次余力才+2.5kg':'';
   const mainPow=isCleanWeek(wk)
-    ? [cleanName(wk),cleanSets(wk),cleanLoad(wk),'高翻：轻技术优先（≤70%极限），每组都干净才加重；接住后控制下放',true,'clean']
+    ? [cleanName(wk),cleanSets(wk),cleanLoad(wk),'高翻：轻技术优先（≤70%极限），每组都干净才加重；末组'+rir+'；接住后控制下放',true,'clean']
     : [hpName(wk),hpSets(wk),LOAD.hp[i]+'kg','爆发主项，速度优先；先分解再连贯',true,'highpull'];
   const lists=[
     /* 周一 · 下肢力量【重】 */
     [
       ['动态热身（高抬腿/开合跳/弓步走/髋绕环/踝膝活动）','8分钟','自重','提高体温与活动度',false,null],
-      ['深蹲（主项，空杆递增2-3组）',mr,LOAD.squat[i]+'kg','留1-2次余量；速度掉20%停组'+cond,true,'squat'],
-      ['硬拉（主项）',dlReps(wk),LOAD.dl[i]+'kg','髋铰链、杠铃贴身、脊柱中立'+(wk<=3?'；录视频自查':'')+cond,true,'dl'],
+      ['深蹲（主项，空杆递增2-3组）',mr,LOAD.squat[i]+'kg','主项：'+rir+'；速度掉20%停组'+cond,true,'squat'],
+      ['硬拉（主项）',dlReps(wk),LOAD.dl[i]+'kg','髋铰链、杠铃贴身、脊柱中立；主项：'+rir+(wk<=3?'；录视频自查':'')+cond,true,'dl'],
       ['保加利亚分腿蹲','3×8-10/侧',bulgarianLoad(wk),'辅项·单腿补弱；RIR 2-3，最后一组吃力=重量合适',false,null],
       ['站姿提踵','3×12-15',acc('负重 20-30kg','负重 25-35kg','负重 30-40kg'),'辅项·踝与小腿；RIR 2-3',false,null],
       ['悬垂举腿（控制版）','3×10-12','自重','腹直肌·慢放2-3秒不摆荡；轻松×12→负重',false,null],
@@ -347,7 +348,7 @@ function buildDay(wk,idx){
     /* 周二 · 上肢推力量【重】 */
     [
       ['热身（肩环绕/弹力带激活/俯卧撑递增）','8分钟','自重/弹力带','激活肩袖与胸肩',false,null],
-      ['卧推（主项）',mr,LOAD.bench[i]+'kg','留1-2次余量（不做到力竭）；保持杠速'+cond,true,'bench'],
+      ['卧推（主项）',mr,LOAD.bench[i]+'kg','主项：'+rir+'；保持杠速'+cond,true,'bench'],
       ['借力推（爆发）',ppSets(wk),LOAD.pushpress[i]+'kg','髋膝蹬伸→推举，速度优先；3次轻松→+2.5kg',false,'pushpress'],
       ['双杠臂屈伸','3×8-10',acc('自重 ~ +5kg','+10 ~ +15kg','+17.5 ~ +22.5kg'),'辅项·胸下束+三头；RIR 2-3',false,null],
       ['哑铃侧平举（中束·肩宽）',acc('4×12-15','5×12-15','4×15'),acc('10kg×2','12.5kg×2','15kg×2'),'肩宽专项；RIR 2-3，严格不借力',false,null],
@@ -375,14 +376,14 @@ function buildDay(wk,idx){
       ['前蹲（接杠稳定）','3×6-8',LOAD.front[i]+'kg','技术巩固，不冲极限',false,null],
       ['罗马尼亚硬拉（RDL）','3×8-10',LOAD.rdl[i]+'kg','辅项·腘绳肌；RIR 2-3',false,null],
       ['保加利亚分腿蹲（轻）','3×10-12/侧',bulgarianLoad(wk),'辅项·单腿容量；RIR 2-3',false,null],
-      ['站姿提踵','3×15-20',acc('负重 20-30kg','负重 25-35kg','负重 30-40kg'),'辅项·踝力量；RIR 2-3',false,null],
-      ['农夫行走','3×30-40s',acc('哑铃 10-12.5kg/侧','哑铃 12.5-15kg/侧','哑铃 15-17.5kg/侧（可持杠铃片）'),'辅项·握力+核心；RIR 2-3',false,null],
+      ['站姿提踵','3×15-20',acc('负重 20-30kg','负重 25-35kg','负重 30-40kg'),'辅项·踝力量；RIR 2-3（可与农夫行走超级组）',false,null],
+      ['农夫行走','3×30-40s',acc('哑铃 10-12.5kg/侧','哑铃 12.5-15kg/侧','哑铃 15-17.5kg/侧（可持杠铃片）'),'辅项·握力+核心；RIR 2-3（与提踵超级组，省时间）',false,null],
       ['静态拉伸（髋/腘绳/小腿）','5分钟','—','收尾',false,null],
     ],
     /* 周五 · 上肢拉力量【重】 */
     [
       ['热身（肩胛激活/弹力带/悬挂放松）','8分钟','自重/弹力带','激活背阔与肩胛',false,null],
-      ['负重引体（宽握，背阔宽度）',mr,'+'+LOAD.pullup[i]+'kg','全程控制，不摆荡；宽握练宽度',true,'pullup'],
+      ['负重引体（宽握，背阔宽度）',mr,'+'+LOAD.pullup[i]+'kg','全程控制，不摆荡；宽握练宽度；主项：'+rir,true,'pullup'],
       ['杠铃划船','4×6-8',LOAD.row[i]+'kg','辅项·背部厚度；RIR 2-3',false,null],
       ['实力推（轻快发力）','3×5',LOAD.pp[i]+'kg','全身发力模式',false,null],
       ['弹力带面拉（后束+肩袖）','3×15-20','弹力带','辅项·肩胛健康（防圆肩）；RIR 2-3',false,null],
@@ -395,9 +396,9 @@ function buildDay(wk,idx){
       ['热身（肩环绕/弹力带/俯卧撑）','8分钟','自重/弹力带','激活肩胸',false,null],
       ['上斜哑铃卧推（上胸·弱区）',acc('4×10-12','5×10-12','4×10-12'),'哑铃 10-15kg（自定）','弱区·上胸；RIR 2-3，严格控制',false,null],
       ['哑铃侧平举（中束·弱区）',acc('4×15-20','5×12-15','4×15-20'),'哑铃（自定）','弱区·中束；RIR 2-3，不借力',false,null],
-      ['俯身哑铃反向飞鸟（后束·弱区）',acc('3×15','4×12-15','3×15'),'哑铃（自定）','弱区·后束；RIR 2-3',false,null],
+      ['俯身哑铃反向飞鸟（后束·弱区）',acc('3×15','4×12-15','3×15'),'哑铃（自定）','弱区·后束；RIR 2-3（可与直臂下压超级组）',false,null],
       ['杠铃划船（背阔厚度）',acc('3×8-10','4×8-10','3×8-10'),LOAD.row[i]+'kg','弱区·背阔厚度；RIR 2-3，脊柱中立',false,null],
-      ['弹力带直臂下压（背阔·弱区）',acc('3×12-15','4×10-12','3×12-15'),'弹力带','弱区·背阔孤立；RIR 2-3',false,null],
+      ['弹力带直臂下压（背阔·弱区）',acc('3×12-15','4×10-12','3×12-15'),'弹力带','弱区·背阔孤立；RIR 2-3（与反向飞鸟超级组）',false,null],
       ['悬垂举腿','3×12','自重','腹直肌；控制慢放',false,null],
       ['静态拉伸（胸/肩/背）','5分钟','—','收尾',false,null],
     ],
