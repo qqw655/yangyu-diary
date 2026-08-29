@@ -327,7 +327,7 @@ const dayDuration=(wk,idx)=>wkInBlock(wk)===4?DAY_DURATION[idx].deload:DAY_DURAT
 function buildDay(wk,idx){
   const i=wk-1,p=phaseOf(wk),j=jumpOf(wk),mr=mainReps(wk);
   const acc=(p1,p2,p3)=>[p1,p2,p3][p-1];
-  const rir=acc('末组RIR 1（不追力竭）','末组RIR 0-1（接近力竭）','末组RIR 0-1');
+  const rir='末组RIR 0-1（接近力竭）；动作变形即停组';
   const bulgarianLoad=(wk)=>wk<=16?'哑铃 10-12.5kg×2':wk<=24?'哑铃 15kg×2':wk<=28?'杠铃 35kg':wk<=32?'杠铃 40kg':wk<=36?'杠铃 42.5kg':wk<=40?'杠铃 45kg':wk<=44?'杠铃 47.5kg':'杠铃 50kg';
   const cond=p===1?'；条件加重：上组留≤2次余力才+2.5kg':'';
   const mainPow=isCleanWeek(wk)
