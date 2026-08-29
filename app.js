@@ -320,7 +320,7 @@ function parseSets(s){
 }
 const weekStart=wk=>new Date(START.getFullYear(),START.getMonth(),START.getDate()+(wk-1)*7);
 /* 每个训练日的预计时长（分钟）：减载周缩短 10 分钟 */
-const DAY_DURATION={0:{base:75,deload:65},1:{base:70,deload:60},2:{base:80,deload:70},3:{base:65,deload:55},4:{base:70,deload:60},5:{base:55,deload:45},6:{base:40,deload:40}};
+const DAY_DURATION={0:{base:75,deload:65},1:{base:70,deload:60},2:{base:90,deload:80},3:{base:65,deload:55},4:{base:70,deload:60},5:{base:65,deload:55},6:{base:40,deload:40}};
 const dayDuration=(wk,idx)=>wkInBlock(wk)===4?DAY_DURATION[idx].deload:DAY_DURATION[idx].base;
 
 /* ================= 课表构建（含肩宽专项 + 全面发展） ================= */
@@ -361,6 +361,7 @@ function buildDay(wk,idx){
       mainPow,
       ['跳深 / 连续跳（下肢弹性）','4×3-5','30-40cm箱','落地缓冲，质量优先',false,null],
       ['摸高 / 单脚跳（踝弹性）','3×3-5','自重','爆发动作，每次全速',false,null],
+      ['杠铃划船（背部厚度）','3×6-8',LOAD.row[i]+'kg','辅项·背阔/上背补充；RIR 2-3，脊柱中立',false,null],
       ...(p===2
         ? [['30-40m 冲刺（维持体测）','4×30-40m','自重','增肌期维持，不冲强度',false,null]]
         : [['1000米节奏跑（体测专项）','1次','自重','70-75%用力；体测前4-6周再上强度',false,null],
@@ -395,6 +396,7 @@ function buildDay(wk,idx){
       ['上斜哑铃卧推（上胸·弱区）',acc('4×10-12','5×10-12','4×10-12'),'哑铃 10-15kg（自定）','弱区·上胸；RIR 2-3，严格控制',false,null],
       ['哑铃侧平举（中束·弱区）',acc('4×15-20','5×12-15','4×15-20'),'哑铃（自定）','弱区·中束；RIR 2-3，不借力',false,null],
       ['俯身哑铃反向飞鸟（后束·弱区）',acc('3×15','4×12-15','3×15'),'哑铃（自定）','弱区·后束；RIR 2-3',false,null],
+      ['杠铃划船（背阔厚度）',acc('3×8-10','4×8-10','3×8-10'),LOAD.row[i]+'kg','弱区·背阔厚度；RIR 2-3，脊柱中立',false,null],
       ['弹力带直臂下压（背阔·弱区）',acc('3×12-15','4×10-12','3×12-15'),'弹力带','弱区·背阔孤立；RIR 2-3',false,null],
       ['悬垂举腿','3×12','自重','腹直肌；控制慢放',false,null],
       ['静态拉伸（胸/肩/背）','5分钟','—','收尾',false,null],
