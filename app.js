@@ -91,8 +91,8 @@ function wkInBlock(wk){ return ((wk-phaseStart(phaseOf(wk)))%4)+1; }
 function mainReps(wk){
   const p=phaseOf(wk), b=wkInBlock(wk);
   if(b===4) return '3×5（减载）';
-  if(p===1) return {1:'4×6',2:'4×5',3:'4×4'}[b];
-  if(p===2) return {1:'5×5',2:'4×5',3:'4×4'}[b];
+  if(p===1) return {1:'5×5',2:'5×5',3:'5×4'}[b];
+  if(p===2) return {1:'5×5',2:'5×5',3:'5×4'}[b];
   return {1:'4×4',2:'4×3',3:'3×3'}[b];
 }
 function dlReps(wk){
