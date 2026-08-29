@@ -41,8 +41,9 @@ function dailyPoem(d){
 }
 const TOTAL_WEEKS = 46;
 const WD = ['周日','周一','周二','周三','周四','周五','周六'];
-const DAY_ORDER = [0, 1, 3, 4]; // 周一/周二/周四/周五
-const DAY_NAMES = ['下肢力量','上肢推·肩宽','爆发·高翻日','上肢拉·肩宽'];
+const DAY_ORDER = [1,2,3,4,5,6,0]; // 周一~周日（dow）
+const DAY_NAMES = ['周一·下肢力量','周二·上肢推力量','周三·爆发+体测','周四·下肢肥大','周五·上肢拉力量','周六·弱区肥大','周日·主动恢复'];
+const todayIdx=dow=>DAY_ORDER.indexOf(dow);
 
 const P1_START=1, P1_END=16, P2_START=17, P2_END=36, P3_START=37, P3_END=46;
 const PHASE_NAME={1:'减脂·技术期',2:'增肌·力量期',3:'塑形·冲刺期'};
@@ -309,7 +310,7 @@ const weekOf=d=>{const diff=(day0(d)-day0(START))/86400000;const w=Math.floor(di
 function todayDay(){
   const now=new Date(),dow=now.getDay();
   if(!(dow===1||dow===2||dow===4||dow===5))return null;
-  const di=DAY_ORDER.indexOf(dow===1?0:dow===2?1:dow===4?3:4);
+  const di=todayIdx(dow);
   return buildDay(weekOf(now),di);
 }
 function parseSets(s){
@@ -319,7 +320,7 @@ function parseSets(s){
 }
 const weekStart=wk=>new Date(START.getFullYear(),START.getMonth(),START.getDate()+(wk-1)*7);
 /* 每个训练日的预计时长（分钟）：减载周缩短 10 分钟 */
-const DAY_DURATION={0:{base:75,deload:65},1:{base:70,deload:60},2:{base:80,deload:70},3:{base:75,deload:65}};
+const DAY_DURATION={0:{base:75,deload:65},1:{base:70,deload:60},2:{base:80,deload:70},3:{base:65,deload:55},4:{base:70,deload:60},5:{base:55,deload:45},6:{base:40,deload:40}};
 const dayDuration=(wk,idx)=>wkInBlock(wk)===4?DAY_DURATION[idx].deload:DAY_DURATION[idx].base;
 
 /* ================= 课表构建（含肩宽专项 + 全面发展） ================= */
@@ -332,55 +333,81 @@ function buildDay(wk,idx){
     ? [cleanName(wk),cleanSets(wk),cleanLoad(wk),'高翻：轻技术优先（≤70%极限），每组都干净才加重；接住后控制下放',true,'clean']
     : [hpName(wk),hpSets(wk),LOAD.hp[i]+'kg','爆发主项，速度优先；先分解再连贯',true,'highpull'];
   const lists=[
+    /* 周一 · 下肢力量【重】 */
     [
-      ['动态热身（高抬腿/开合跳/弓步走/髋绕环/踝膝活动）','10分钟','自重','提高体温与活动度',false,null],
+      ['动态热身（高抬腿/开合跳/弓步走/髋绕环/踝膝活动）','8分钟','自重','提高体温与活动度',false,null],
       ['深蹲（主项，空杆递增2-3组）',mr,LOAD.squat[i]+'kg','留1-2次余量；速度掉20%停组'+cond,true,'squat'],
       ['硬拉（主项）',dlReps(wk),LOAD.dl[i]+'kg','髋铰链、杠铃贴身、脊柱中立'+(wk<=3?'；录视频自查':'')+cond,true,'dl'],
-      [j[0],j[1],j[2],'爆发动作，每次全速',false,null],
-      ['保加利亚分腿蹲','3×6-8/侧',bulgarianLoad(wk),'辅项·深蹲补弱（单腿）；'+(wk>=25?'杠铃版：前脚踩地、后脚垫凳，深蹲架内做防摔，平衡优先；':'')+'RIR 2-3，最后一组吃力=重量合适',false,null],
-      ['站姿提踵','3×10-12',acc('负重 20-30kg','负重 25-35kg','负重 30-40kg'),'辅项·踝与小腿健康；RIR 2-3，次数轻松→升档',false,null],
-      ['悬垂举腿','3×8-10','自重','辅项·核心抗伸展；自重进阶（负重/抬更高）',false,null],
+      ['保加利亚分腿蹲','3×8-10/侧',bulgarianLoad(wk),'辅项·单腿补弱；RIR 2-3，最后一组吃力=重量合适',false,null],
+      ['站姿提踵','3×12-15',acc('负重 20-30kg','负重 25-35kg','负重 30-40kg'),'辅项·踝与小腿；RIR 2-3',false,null],
+      ['悬垂举腿（控制版）','3×10-12','自重','腹直肌·慢放2-3秒不摆荡；轻松×12→负重',false,null],
       ['侧桥（抗旋转）','3×20-30s/侧','自重','辅项·核心抗旋转；自重进阶（加时间/负重）',false,null],
       ['静态拉伸（髋屈肌/腘绳肌/胸椎）','5分钟','—','收尾放松',false,null],
     ],
+    /* 周二 · 上肢推力量【重】 */
     [
-      ['热身（肩环绕/弹力带激活/俯卧撑递增）','10分钟','自重/弹力带','激活肩袖与胸肩',false,null],
+      ['热身（肩环绕/弹力带激活/俯卧撑递增）','8分钟','自重/弹力带','激活肩袖与胸肩',false,null],
       ['卧推（主项）',mr,LOAD.bench[i]+'kg','留1-2次余量（不做到力竭）；保持杠速'+cond,true,'bench'],
       ['借力推（爆发）',ppSets(wk),LOAD.pushpress[i]+'kg','髋膝蹬伸→推举，速度优先；3次轻松→+2.5kg',false,'pushpress'],
-      ['哑铃侧平举（肩宽专项）','4×12-15',acc('10kg×2','12.5kg×2','15kg×2'),'辅项·肩宽增肌（中束）；RIR 2-3，严格不借力，4×15 轻松→升档',false,null],
-      ['双杠臂屈伸','3×6-10',acc('自重 ~ +5kg','+10 ~ +15kg','+17.5 ~ +22.5kg'),'辅项·胸下束+三头增肌；RIR 2-3；6次×2次轻松→+2.5kg',false,null],
-      ['俯身哑铃反向飞鸟','3×12-15',acc('10kg×2','12.5kg×2','15kg×2'),'辅项·肩后束健康（防圆肩）；RIR 2-3，严格不借力',false,null],
-      ['仰卧臂屈伸（碎颅者）','3×10-12',acc('10kg','12.5kg','15→20kg（W杆+1.25kg片，每2-3周+2.5）'),'辅项·三头长头（卧推补弱）；RIR 2-3，手肘朝前慢放；3×12 全程 RIR≤2 → +2.5kg（W杆+1.25kg片）',false,null],
+      ['双杠臂屈伸','3×8-10',acc('自重 ~ +5kg','+10 ~ +15kg','+17.5 ~ +22.5kg'),'辅项·胸下束+三头；RIR 2-3',false,null],
+      ['哑铃侧平举（中束·肩宽）',acc('4×12-15','5×12-15','4×15'),acc('10kg×2','12.5kg×2','15kg×2'),'肩宽专项；RIR 2-3，严格不借力',false,null],
+      ['仰卧臂屈伸（碎颅者）','3×10-12',acc('10kg','12.5kg','15→20kg（W杆+1.25kg片）'),'辅项·三头长头；RIR 2-3，手肘朝前慢放',false,null],
       ['平板支撑','3×45s','自重','核心稳定',false,null],
       ['静态拉伸（肩前/胸/三头）','5分钟','—','收尾',false,null],
     ],
+    /* 周三 · 爆发+体测【中】 */
     [
-      ['热身（动态+空杆高翻/高拉分解练习）','10分钟','空杆','复习发力顺序',false,null],
+      ['热身（动态+空杆高翻分解练习）','10分钟','空杆','复习发力顺序',false,null],
       mainPow,
-      ...(isCleanWeek(wk)?[[hpName(wk),'3×3','轻-60%','高拉保留技术记忆',false,null]]:[]),
-      ['前蹲（接杠稳定）','3×5',LOAD.front[i]+'kg','技术巩固，不冲极限',false,null],
       ['跳深 / 连续跳（下肢弹性）','4×3-5','30-40cm箱','落地缓冲，质量优先',false,null],
-      ['罗马尼亚硬拉（RDL）','3×6-8',LOAD.rdl[i]+'kg','辅项·硬拉补弱（腘绳肌）；RIR 2-3',false,null],
-      ['站姿提踵','3×12',acc('负重 20-30kg','负重 25-35kg','负重 30-40kg'),'辅项·踝力量；RIR 2-3',false,null],
-      ['农夫行走','3×30-40s',acc('哑铃 10-12.5kg/侧','哑铃 12.5-15kg/侧','哑铃 15-17.5kg/侧（可持杠铃片）'),'辅项·握力+核心；RIR 2-3，时间达标→加重',false,null],
+      ['摸高 / 单脚跳（踝弹性）','3×3-5','自重','爆发动作，每次全速',false,null],
+      ...(p===2
+        ? [['30-40m 冲刺（维持体测）','4×30-40m','自重','增肌期维持，不冲强度',false,null]]
+        : [['1000米节奏跑（体测专项）','1次','自重','70-75%用力；体测前4-6周再上强度',false,null],
+           ['10×4 折返跑（体测专项）','3组','自重','转身技术优先',false,null]]),
+      ['平板支撑 + 死虫','各3组','自重','核心稳定+控制',false,null],
       ['静态拉伸（髋/腘绳/小腿）','5分钟','—','收尾',false,null],
     ],
+    /* 周四 · 下肢肥大【轻-中】 */
     [
-      ['热身（肩胛激活/弹力带/悬挂放松）','10分钟','自重/弹力带','激活背阔与肩胛',false,null],
+      ['热身（动态+空杆前蹲架位）','8分钟','空杆','前架位热身',false,null],
+      ['前蹲（接杠稳定）','3×6-8',LOAD.front[i]+'kg','技术巩固，不冲极限',false,null],
+      ['罗马尼亚硬拉（RDL）','3×8-10',LOAD.rdl[i]+'kg','辅项·腘绳肌；RIR 2-3',false,null],
+      ['保加利亚分腿蹲（轻）','3×10-12/侧',bulgarianLoad(wk),'辅项·单腿容量；RIR 2-3',false,null],
+      ['站姿提踵','3×15-20',acc('负重 20-30kg','负重 25-35kg','负重 30-40kg'),'辅项·踝力量；RIR 2-3',false,null],
+      ['农夫行走','3×30-40s',acc('哑铃 10-12.5kg/侧','哑铃 12.5-15kg/侧','哑铃 15-17.5kg/侧（可持杠铃片）'),'辅项·握力+核心；RIR 2-3',false,null],
+      ['静态拉伸（髋/腘绳/小腿）','5分钟','—','收尾',false,null],
+    ],
+    /* 周五 · 上肢拉力量【重】 */
+    [
+      ['热身（肩胛激活/弹力带/悬挂放松）','8分钟','自重/弹力带','激活背阔与肩胛',false,null],
       ['负重引体（宽握，背阔宽度）',mr,'+'+LOAD.pullup[i]+'kg','全程控制，不摆荡；宽握练宽度',true,'pullup'],
-      ['杠铃/哑铃划船','3×6-8',LOAD.row[i]+'kg','辅项·背部厚度（推拉平衡）；RIR 2-3',false,null],
+      ['杠铃划船','4×6-8',LOAD.row[i]+'kg','辅项·背部厚度；RIR 2-3',false,null],
       ['实力推（轻快发力）','3×5',LOAD.pp[i]+'kg','全身发力模式',false,null],
-      ['双杠臂屈伸（胸下束）','3×6-10',acc('自重 ~ +5kg','+10 ~ +15kg','+17.5 ~ +22.5kg'),'辅项·胸第2次刺激（频率文献：每肌群2次/周）；与周二同档，RIR 2-3；6次×2次轻松→+2.5kg',false,null],
-      ['哑铃侧平举（肩宽专项）','4×12-15',acc('10kg×2','12.5kg×2','15kg×2'),'辅项·肩宽增肌（中束）；RIR 2-3，与上肢推日同档',false,null],
-      ['弹力带面拉（肩胛后缩）','3×15','弹力带','辅项·肩胛健康（防圆肩）；RIR 2-3',false,null],
-      ['双手哑铃摆荡','3×8-12',acc('10kg','12.5kg','15kg'),'辅项·髋铰链速度；RIR 2-3，屈髋后摆髋部发力',false,null],
-      ['二头弯举','2-3×8-10',acc('20-25kg','25-30kg','30-35kg'),'辅项·臂围增肌；RIR 2-3，8次轻松→加重',false,null],
+      ['弹力带面拉（后束+肩袖）','3×15-20','弹力带','辅项·肩胛健康（防圆肩）；RIR 2-3',false,null],
+      ['二头弯举','3×10-12',acc('20-25kg','25-30kg','30-35kg'),'辅项·臂围；RIR 2-3',false,null],
       ['死虫','3×10/侧','自重','辅项·核心控制；自重进阶',false,null],
-      ['敏捷脚步（地面画格/小步快频率）','4组×20秒','自重','辅项·脚步频率+协调；全力快速',false,null],
       ['静态拉伸（背/二头/胸椎）','5分钟','—','收尾',false,null],
     ],
+    /* 周六 · 弱区肥大【轻】 */
+    [
+      ['热身（肩环绕/弹力带/俯卧撑）','8分钟','自重/弹力带','激活肩胸',false,null],
+      ['上斜哑铃卧推（上胸·弱区）',acc('4×10-12','5×10-12','4×10-12'),'哑铃 10-15kg（自定）','弱区·上胸；RIR 2-3，严格控制',false,null],
+      ['哑铃侧平举（中束·弱区）',acc('4×15-20','5×12-15','4×15-20'),'哑铃（自定）','弱区·中束；RIR 2-3，不借力',false,null],
+      ['俯身哑铃反向飞鸟（后束·弱区）',acc('3×15','4×12-15','3×15'),'哑铃（自定）','弱区·后束；RIR 2-3',false,null],
+      ['弹力带直臂下压（背阔·弱区）',acc('3×12-15','4×10-12','3×12-15'),'弹力带','弱区·背阔孤立；RIR 2-3',false,null],
+      ['悬垂举腿','3×12','自重','腹直肌；控制慢放',false,null],
+      ['静态拉伸（胸/肩/背）','5分钟','—','收尾',false,null],
+    ],
+    /* 周日 · 主动恢复【轻】 */
+    [
+      ['快走 / 骑行台（低强度）','30-40分钟','—','主动恢复·心率轻松；累了直接休息',false,null],
+      ['全身拉伸 / 泡沫轴','15分钟','—','放松主要肌群',false,null],
+      ['死虫 + 平板支撑','各2组','自重','核心轻量；状态差跳过',false,null],
+      ['轻松引体 / 悬挂（可选）','2×5-8','自重','状态好才做；累了就休息',false,null],
+    ],
   ];
-  const d=new Date(weekStart(wk));d.setDate(d.getDate()+DAY_ORDER[idx]);
+  const d=new Date(weekStart(wk));d.setDate(d.getDate()+((DAY_ORDER[idx]+6)%7));
   return {name:DAY_NAMES[idx],date:d,dateStr:fmt(d),duration:dayDuration(wk,idx),items:lists[idx].map(x=>{const it={name:x[0],sets:x[1],load:autoLoad(x[2]),planLoad:x[2],note:x[3],main:x[4],lift:x[5]};it.rest=restOf(it);return it;})};
 }
 function buildWeek(wk){
@@ -429,10 +456,10 @@ function drawChart(canvas,series){
 function renderToday(){
   const now=new Date(),d=day0(now),wk=weekOf(d),dow=d.getDay();
   const key=fmt(d),L=logFor(key);
-  const isTrain=(dow===1||dow===2||dow===4||dow===5);
+  const isTrain=true;
   const p=phaseOf(wk);
   const tt=document.getElementById('todayTrainTitle');
-  if(tt)tt.textContent=isTrain?'今日训练模板':'好好休息';
+  if(tt)tt.textContent=dow===0?'今日·主动恢复（轻）':'今日训练模板';
   document.getElementById('todayLine').textContent=
     d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · '+WD[dow]+' · 第 '+wk+' 周 · '+PHASE_NAME[p]+'（小周期第 '+wkInBlock(wk)+' 周）';
   const msLife=day0(now)-day0(BIRTH);
@@ -447,7 +474,7 @@ function renderToday(){
   // 训练
   const wkEl=document.getElementById('todayWorkout');
   if(isTrain){
-    const di=DAY_ORDER.indexOf(dow===1?0:dow===2?1:dow===4?3:4);
+    const di=todayIdx(dow);
     const day=buildDay(wk,di);
     const items=day.items.map(it=>{
       const total=parseSets(it.sets);
@@ -471,8 +498,7 @@ function renderToday(){
     }).join('');
     wkEl.innerHTML='<div class="rest-note" style="margin-bottom:8px">今日：'+esc(day.name)+'（'+WD[day.date.getDay()]+' '+day.date.getMonth()+1+'/'+day.date.getDate()+'）· 预计约 '+day.duration+' 分钟<br>'+esc(phaseGoalNote(wk))+'</div>'+items;
   }else{
-    const sup=SUP_TODAY[dow]||'可选补充日';
-    wkEl.innerHTML='<div class="rest-note big">💤 好好休息<br>今天是休息日（周三/六/日）。恢复也是训练的一部分：散步或快走 20-30 分钟、拉伸、睡前 10 分钟泡沫轴。<br>状态好做「'+esc(sup)+'」：重量自定、留 2-3 次余力、不做到力竭；累了直接跳过（完整模板见计划页底部）。<br>全能体能（每周 1-2 次，可选）：轻松跑/快走 20-30 分钟 + 4×30-40m 冲刺（热身充分）+ 侧向滑步/折返跑。<br>'+esc(phaseGoalNote(wk))+'</div>';
+    wkEl.innerHTML='<div class="rest-note big">💤 今天就是休息日（主动恢复）。累了就纯休息：散步 20-30 分钟、拉伸即可；状态好可做周日的「主动恢复」内容（见计划页）。<br>'+esc(phaseGoalNote(wk))+'</div>';
   }
 
   // 饮食（按阶段）
@@ -481,7 +507,7 @@ function renderToday(){
   document.getElementById('todayDiet').innerHTML=macroBlockHTML(macro);
 
   // 汇总
-  const totalEx=isTrain?buildDay(wk,DAY_ORDER.indexOf(dow===1?0:dow===2?1:dow===4?3:4)).items.length:0;
+  const totalEx=isTrain?buildDay(wk,todayIdx(dow)).items.length:0;
   const doneEx=isTrain?Object.values(L.work).filter(Boolean).length:0;
   document.getElementById('todaySummary').innerHTML=
     '<div class="sum-card"><div class="num">'+doneEx+'<small style="font-size:12px">/'+totalEx+'项</small></div><div class="lbl">训练</div></div>'+
@@ -497,44 +523,13 @@ function renderToday(){
 
 /* ================= 渲染：计划 ================= */
 let selWeek=weekOf(new Date());
-/* 可选补充日：核心四练之外的三天，针对弱势部位（上胸/中束/后束/背阔），不练腿、不固定重量 */
-const SUPPLEMENTS=[
-  {day:'周三',name:'补充日B · 背阔+后束',dur:'约40分钟',total:'8-10组',items:[
-    ['单臂哑铃划船（背阔·可换杠铃/弹力带加重）','4×10-12/侧'],
-    ['弹力带直臂下压（背阔孤立）','3×12-15'],
-    ['俯身哑铃反向飞鸟（后束）','4×12-15'],
-    ['弹力带面拉（后束+肩袖）','3×15-20'],
-  ]},
-  {day:'周六',name:'补充日C · 弱区混合泵感',dur:'约35分钟',total:'7-9组',items:[
-    ['上斜哑铃卧推（上胸）','3×10-12'],
-    ['哑铃侧平举（中束）','3×15-20'],
-    ['弹力带面拉（后束）','3×15-20'],
-    ['弹力带直臂下压（背阔）','2×12-15'],
-  ]},
-  {day:'周日',name:'补充日A · 上胸+中束',dur:'约40分钟',total:'8-10组',items:[
-    ['上斜哑铃卧推（上胸）','4×10-12'],
-    ['上斜俯卧撑（脚垫高）/ 哑铃上斜飞鸟','3×12-15'],
-    ['哑铃侧平举（中束）','4×15-20'],
-    ['弹力带侧平举（中束·收尾）','2×20+'],
-  ]},
-];
-function renderSupplement(){
-  const el=document.getElementById('supplementList');
-  if(!el)return;
-  el.innerHTML=SUPPLEMENTS.map(s=>
-    '<div class="sub-card"><div class="sub-title">'+esc(s.day)+' · '+esc(s.name)+' · '+s.total+' · '+s.dur+'</div>'+
-    s.items.map(it=>'<div class="ex-item"><div class="ex-main"><div class="ex-name">'+esc(it[0])+'</div>'+
-      '<div class="ex-meta">'+esc(it[1])+' · 重量自定 · 休60-90秒</div></div></div>').join('')+
-    '</div>').join('');
-}
-const SUP_TODAY={3:'补充日B · 背阔+后束（单臂划船/直臂下压/反向飞鸟/面拉）',6:'补充日C · 弱区混合（上斜卧推/侧平举/面拉/直臂下压）',0:'补充日A · 上胸+中束（上斜卧推/飞鸟/侧平举）'};
 function renderPlan(){
   document.getElementById('phaseTable').innerHTML='<tr><th>阶段</th><th>周次</th><th>主题</th><th>目标</th><th>力量/体型里程碑</th></tr>'+
     PHASE_TARGETS.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('');
   const alloc=[
-    ['减脂·技术期','W1-16','4练/周','主项 4×4-6（减载 3×5）','中容量：每肌群约 8-12 组/周','练后拉伸 + 休息日轻跑 1-2 次','按体重自动换算 · 蛋白 ~2.1g/kg'],
-    ['增肌·力量期','W17-36','4练/周','主项 5×5 → 4×3（减载 3×5）','高容量：每肌群约 10-14 组/周','跳跃/冲刺保持，每周 1 次','按体重自动换算 · 蛋白 ~2.1g/kg'],
-    ['塑形·冲刺期','W37-46','4练/周','主项 3×3-4，强度优先','低容量：每肌群约 6-10 组/周','力量保底 + 体能维持','按体重自动换算 · 蛋白 ~2.1g/kg'],
+    ['减脂·技术期','W1-16','7练/周（重3·中2·轻2）','主项 4×4-6（减载 3×5）','中容量：每肌群约 8-12 组/周','周三1000米+冲刺（体测专项）','按体重自动换算 · 蛋白 ~2.1g/kg'],
+    ['增肌·力量期','W17-36','7练/周（重3·中2·轻2）','主项 5×5 → 4×3（减载 3×5）','高容量：每肌群约 12-18 组/周','周三30m冲刺维持；1000米隔周','按体重自动换算 · 蛋白 ~2.1g/kg'],
+    ['塑形·冲刺期','W37-46','7练/周（重3·中2·轻2）','主项 3×3-4，强度优先','低容量：每肌群约 8-12 组/周','恢复1000米体测专项','按体重自动换算 · 蛋白 ~2.1g/kg'],
   ];
   const allocEl=document.getElementById('phaseAlloc');
   if(allocEl)allocEl.innerHTML='<tr><th>阶段</th><th>周次</th><th>频率</th><th>主项组数×次数</th><th>容量</th><th>体能</th><th>饮食</th></tr>'+
@@ -543,7 +538,6 @@ function renderPlan(){
   document.getElementById('weekPicker').innerHTML=Array.from({length:TOTAL_WEEKS},(_,i)=>i+1).map(w=>
     '<button data-wk="'+w+'" class="'+(w===selWeek?'active':'')+(w===cur?' current':'')+'">'+w+'</button>').join('');
   renderWeekDetail();
-  renderSupplement();
 }
 function renderWeekDetail(){
   const wk=buildWeek(selWeek);
@@ -700,7 +694,7 @@ function copyLog(){
   const bw=body.find(b=>b.date===key);
   md+='- 体重/腰围/肩围：'+(bw?(bw.weight+'kg / '+(bw.waist||'-')+'cm / '+(bw.shoulder||'-')+'cm'):'未记录')+'\n\n## 训练\n';
   if(isTrain){
-    const di=DAY_ORDER.indexOf(dow===1?0:dow===2?1:dow===4?3:4);
+    const di=todayIdx(dow);
     buildDay(wk,di).items.forEach(it=>{
       const total=parseSets(it.sets);
       const sd=total>0?((L.sets&&L.sets[it.name])||0):(L.work[it.name]?1:0);
