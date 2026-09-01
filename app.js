@@ -321,6 +321,17 @@ function lastLiftWeight(lift,excludeKey){
   }
   return null;
 }
+function lastExWeight(name,excludeKey){
+  const keys=Object.keys(logs).filter(k=>k!==excludeKey).sort();
+  for(let i=keys.length-1;i>=0;i--){
+    const lg=logs[keys[i]];
+    if(lg&&lg.exWts&&lg.exWts[name]!=null)return {w:lg.exWts[name],d:keys[i]};
+  }
+  return null;
+}
+function canRecordWeight(n){
+  return !(n.includes('热身')||n.includes('拉伸')||n.includes('快走')||n.includes('骑行')||n.includes('冲刺')||n.includes('1000米')||n.includes('10×4')||n.includes('折返')||n.includes('轻松引体')||n.includes('悬挂'));
+}
 function fmtShort(ds){const p=String(ds).split('-');return p[1]+'/'+p[2];}
 function parseSets(s){
   if(!s)return 0;
@@ -477,11 +488,11 @@ function renderToday(){
           (setsDone>0?'<button class="undo-btn" data-undo="'+esc(it.name)+'" title="撤回一组">↺</button>':'')+
           '</div>';
       }
-      const wtRow=(it.main&&it.lift)?(function(){
-        const cur=L.lifts&&L.lifts[it.lift];
-        const last=lastLiftWeight(it.lift,key);
+      const wtRow=canRecordWeight(it.name)?(function(){
+        const cur=(L.exWts&&L.exWts[it.name]!=null)?L.exWts[it.name]:(it.lift&&L.lifts?L.lifts[it.lift]:null);
+        const last=lastExWeight(it.name,key)||(it.lift?lastLiftWeight(it.lift,key):null);
         const disp=cur?('本次 '+cur+'kg'):(last?('上次 '+last.w+'kg（'+fmtShort(last.d)+'）'):'未记录');
-        return '<div class="ex-wt">做组重量：<b>'+disp+'</b> <button class="wt-btn" data-lift="'+esc(it.lift)+'" data-name="'+esc(it.name)+'">记录</button></div>';
+        return '<div class="ex-wt">重量：<b>'+disp+'</b> <button class="wt-btn" data-lift="'+(it.lift||'')+'" data-name="'+esc(it.name)+'">记录</button></div>';
       })():'';
       return '<div class="ex-item'+(done?' done':'')+'">'+
         '<input type="checkbox" data-wk="'+wk+'" data-ex="'+esc(it.name)+'" data-main="'+(it.main?'1':'0')+'" data-load="'+esc(it.load)+'" data-lift="'+(it.lift||'')+'" '+(done?'checked':'')+'>'+
@@ -659,6 +670,33 @@ function renderBody(){
   const pts=[],lab=[];
   Object.keys(logs).sort().forEach(k=>{if(logs[k].lifts&&logs[k].lifts[lift]!=null){pts.push(logs[k].lifts[lift]);lab.push(k.slice(5));}});
   drawChart(document.getElementById('liftChart'),[{points:pts,labels:lab,color:'#2E75B6'}]);
+  // 动作重量记录（主项/辅项通用）
+  const exSel=document.getElementById('exWeightSelect');
+  if(exSel){
+    const wk=Math.max(1,Math.min(weekOf(new Date()),TOTAL_WEEKS));
+    const seen={},opts=[];
+    window.__liftMap={};
+    buildWeek(wk).days.forEach(d=>d.items.forEach(it=>{
+      if(!canRecordWeight(it.name))return;
+      if(it.lift)window.__liftMap[it.name]=it.lift;
+      if(!seen[it.name]){seen[it.name]=1;opts.push(it.name);}
+    }));
+    const sel=exSel.value&&opts.indexOf(exSel.value)>=0?exSel.value:opts[0]||'';
+    exSel.innerHTML=opts.map(o=>'<option'+(o===sel?' selected':'')+'>'+esc(o)+'</option>').join('');
+    updateExWtInfo();
+  }
+}
+function updateExWtInfo(){
+  const sel=document.getElementById('exWeightSelect'),info=document.getElementById('exWeightInfo'),listEl=document.getElementById('exWeightList');
+  if(!sel||!info)return;
+  const name=sel.value;
+  if(!name){info.textContent='本周计划里没有可选动作，先到「今日/计划」页看看。';listEl.innerHTML='';return;}
+  const cur=logs[todayKey]&&logs[todayKey].exWts&&logs[todayKey].exWts[name];
+  const last=lastExWeight(name,todayKey);
+  info.textContent='「'+name+'」'+(cur!=null?(' 本次已记录：'+cur+'kg'):(last?(' 上次：'+last.w+'kg（'+fmtShort(last.d)+'）'):' 暂无记录'));
+  const hist=[];
+  Object.keys(logs).sort().forEach(k=>{const lg=logs[k];if(lg&&lg.exWts&&lg.exWts[name]!=null)hist.push({d:k,w:lg.exWts[name]});});
+  listEl.innerHTML=hist.slice(-6).reverse().map(h=>'<span>'+h.d.slice(5)+' '+h.w+'kg</span>').join('')||'<span class="hint">暂无记录</span>';
 }
 
 /* ================= 导出 / 导入 ================= */
@@ -733,6 +771,7 @@ function bindEvents(){
       }
       persist();render();
     }
+    if(e.target.matches('#exWeightSelect'))updateExWtInfo();
   });
   document.addEventListener('click',e=>{
     const key=todayKey,L=logFor(key);
@@ -754,9 +793,13 @@ function bindEvents(){
     }
     if(e.target.matches('.wt-btn')){
       const lift=e.target.dataset.lift,name=e.target.dataset.name;
-      const inp=prompt('记录「'+name+'」本次做组重量(kg)：');
+      const inp=prompt('记录「'+name+'」本次重量(kg)：');
       const w=parseFloat(inp);
-      if(lift&&w>0){L.lifts=L.lifts||{};L.lifts[lift]=w;persist();render();}
+      if(w>0){
+        L.exWts=L.exWts||{};L.exWts[name]=w;
+        if(lift){L.lifts=L.lifts||{};L.lifts[lift]=w;}
+        persist();render();
+      }
       return;
     }
     if(e.target.matches('.undo-btn')){
@@ -790,6 +833,19 @@ function bindEvents(){
       const idx=body.findIndex(b=>b.date===todayKey);
       if(idx>=0){rec.waist=body[idx].waist;rec.shoulder=body[idx].shoulder;body[idx]=rec;}else body.push(rec);
       save(LS.body,body);render();
+    }
+    if(e.target.matches('#exWeightSave')){
+      const name=document.getElementById('exWeightSelect').value;
+      const w=parseFloat(document.getElementById('exWeightInput').value);
+      if(!name){alert('请先选择动作');return;}
+      if(!w||w<=0){alert('请输入有效重量');return;}
+      const L=logFor(todayKey);
+      L.exWts=L.exWts||{};L.exWts[name]=w;
+      const lm=window.__liftMap||{};
+      if(lm[name]){L.lifts=L.lifts||{};L.lifts[lm[name]]=w;}
+      persist();render();
+      document.getElementById('exWeightInput').value='';
+      alert('已记录「'+name+'」'+w+'kg');
     }
     if(e.target.matches('#exportBtn'))exportData();
     if(e.target.matches('#copyLogBtn'))copyLog();
