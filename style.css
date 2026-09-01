@@ -36,6 +36,8 @@ main{padding:12px}
 .ex-name{letter-spacing:.3px}
 .ex-meta{font-size:12px;color:var(--muted);margin-top:2px}
 .ex-note{font-size:12px;color:#8a6d3b;margin-top:2px}
+.ex-wt{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:12px;color:var(--blue2);flex-wrap:wrap}
+.wt-btn{background:var(--blue);border:1px solid var(--blue);color:#fff;padding:3px 10px;border-radius:8px;font-size:12px;cursor:pointer}
 .rest{color:#2e7d32;font-size:12px;font-weight:700}
 input[type="checkbox"]{width:22px;height:22px;accent-color:var(--green);flex:none}
 .meal-item{display:flex;align-items:flex-start;gap:10px;padding:8px 4px;border-bottom:1px dashed var(--line)}
