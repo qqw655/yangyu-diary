@@ -42,7 +42,7 @@ function dailyPoem(d){
 const TOTAL_WEEKS = 46;
 const WD = ['周日','周一','周二','周三','周四','周五','周六'];
 const DAY_ORDER = [1,2,3,4,5,6,0]; // 周一~周日
-const DAY_NAMES = ['周一·蹲A','周二·推A','周三·蹲B','周四·拉A','周五·推B','周六·拉B','周日·主动恢复'];
+const DAY_NAMES = ['周一·蹲A','周二·推A','周三·拉A','周四·蹲B','周五·推B','周六·拉B','周日·主动恢复'];
 const todayIdx=dow=>DAY_ORDER.indexOf(dow);
 
 const P1_START=1, P1_END=16, P2_START=17, P2_END=36, P3_START=37, P3_END=46;
@@ -340,7 +340,7 @@ function parseSets(s){
 }
 const weekStart=wk=>new Date(START.getFullYear(),START.getMonth(),START.getDate()+(wk-1)*7);
 /* 每个训练日的预计时长（分钟）：减载周缩短 10 分钟 */
-const DAY_DURATION={0:{base:80,deload:70},1:{base:70,deload:60},2:{base:85,deload:75},3:{base:70,deload:60},4:{base:60,deload:50},5:{base:60,deload:50},6:{base:40,deload:40}};
+const DAY_DURATION={0:{base:80,deload:70},1:{base:70,deload:60},2:{base:70,deload:60},3:{base:85,deload:75},4:{base:60,deload:50},5:{base:60,deload:50},6:{base:40,deload:40}};
 const dayDuration=(wk,idx)=>wkInBlock(wk)===4?DAY_DURATION[idx].deload:DAY_DURATION[idx].base;
 
 /* ================= 课表构建（含肩宽专项 + 全面发展） ================= */
@@ -376,7 +376,17 @@ function buildDay(wk,idx){
       ['平板支撑','3×45s','自重','核心稳定',false,null],
       ['静态拉伸（肩前/胸/三头）','5分钟','—','收尾',false,null],
     ],
-    /* 周三 · 蹲B【中】 */
+    /* 周三 · 拉A【重】 */
+    [
+      ['热身（肩胛激活/弹力带/悬挂放松）','8分钟','自重/弹力带','激活背阔与肩胛',false,null],
+      ['负重引体（宽握，主项）',mr,'+'+LOAD.pullup[i]+'kg','全程控制，不摆荡；宽握练宽度；主项：'+rir,true,'pullup'],
+      ['杠铃划船','4×6-8',LOAD.row[i]+'kg','辅项·背部厚度；RIR 2-3，脊柱中立',false,null],
+      ['弹力带面拉（后束+肩袖）','3×15-20','弹力带','辅项·肩胛健康（防圆肩）；RIR 2-3',false,null],
+      ['二头弯举','3×10-12',acc('20-25kg','25-30kg','30-35kg'),'辅项·臂围；RIR 2-3',false,null],
+      ['悬垂举腿（控制版）','3×10-12','自重','腹直肌·慢放；轻松×12→负重',false,null],
+      ['静态拉伸（背/二头/胸椎）','5分钟','—','收尾',false,null],
+    ],
+    /* 周四 · 蹲B【中】 */
     [
       ['热身（动态+空杆前蹲架位）','8分钟','空杆','前架位热身',false,null],
       ['前蹲','3×6-8',LOAD.front[i]+'kg','技术巩固，不冲极限',false,null],
@@ -389,16 +399,6 @@ function buildDay(wk,idx){
            ['10×4 折返跑（体测专项）','3组','自重','转身技术优先',false,null]]),
       ['平板支撑 + 死虫','各3组','自重','核心稳定+控制',false,null],
       ['静态拉伸（髋/腘绳/小腿）','5分钟','—','收尾',false,null],
-    ],
-    /* 周四 · 拉A【重】 */
-    [
-      ['热身（肩胛激活/弹力带/悬挂放松）','8分钟','自重/弹力带','激活背阔与肩胛',false,null],
-      ['负重引体（宽握，主项）',mr,'+'+LOAD.pullup[i]+'kg','全程控制，不摆荡；宽握练宽度；主项：'+rir,true,'pullup'],
-      ['杠铃划船','4×6-8',LOAD.row[i]+'kg','辅项·背部厚度；RIR 2-3，脊柱中立',false,null],
-      ['弹力带面拉（后束+肩袖）','3×15-20','弹力带','辅项·肩胛健康（防圆肩）；RIR 2-3',false,null],
-      ['二头弯举','3×10-12',acc('20-25kg','25-30kg','30-35kg'),'辅项·臂围；RIR 2-3',false,null],
-      ['悬垂举腿（控制版）','3×10-12','自重','腹直肌·慢放；轻松×12→负重',false,null],
-      ['静态拉伸（背/二头/胸椎）','5分钟','—','收尾',false,null],
     ],
     /* 周五 · 推B【中】 */
     [
