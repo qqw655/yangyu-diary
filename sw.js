@@ -1,5 +1,5 @@
 'use strict';
-const CACHE='yy-diary-v21';
+const CACHE='yy-diary-v22';
 const ASSETS=['./','./index.html','./style.css','./app.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
